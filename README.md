@@ -2,8 +2,9 @@ MetAlyzer
 ========
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/andresenc/MetAlyzer/workflows/R-CMD-check/badge.svg)](https://github.com/andresenc/MetAlyzer/actions)
+[![R-CMD-check](https://github.com/nilsmechtel/MetAlyzer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nilsmechtel/MetAlyzer/actions/workflows/R-CMD-check.yaml)
 [![license](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/MetAlyzer)](https://cran.r-project.org/package=MetAlyzer)
 <!-- badges: end -->
 
 **An R Package to read and analyze MetIDQ&trade; output**
@@ -18,94 +19,81 @@ There is a version available on CRAN.
 install.packages("MetAlyzer")
 ```
 
-## Quick start
+For the latest version install from GitHub
+```r
+library(devtools)
+install_github("nilsmechtel/MetAlyzer")
+```
 
-![Overview](vignettes/MetAlyzer_overview.png)
+## Quickstart
 
 The package takes metabolomic measurements and the quantification status (e.g. "Valid", "LOQ", "LOD") as ".xlsx" files generated from the MetIDQ&trade; software. Additionally, meta data for each sample can be provided for further analysis.
 
-#### Set data path and read meta data
-```r
-fpath <- system.file("extdata", "example_data.xlsx", package = "MetAlyzer")
-mpath <- system.file("extdata", "example_meta_data.rds", package = "MetAlyzer")
-```
+![MetAlyzer](vignettes/MetAlyzer_workflow.png)
+
+This is an extract from one of the provided example data sets.
+![Example_Data](vignettes/screenshot_xlsx.png)
 
 #### Create MetAlyzer object:
-```r
-obj <- MetAlyzerDataset(file_path = fpath)
-```
+```{r}
+> metalyzer_se <- MetAlyzer_dataset(file_path = extraction_data())
 
-#### Show MetAlyzer object:
-```r
-show(obj)
--------------------------------------
-File name: example_data.xlsx 
-Sheet: 1 
-File path: /Library/Frameworks/R.framework/Versions/4.0/Resources/library/MetAlyzer/extdata 
-Metabolites: 862 
-Classes: 24 
-Including metabolism indicators: TRUE 
-Number of samples: 74 
-Columns meta data: "Plate Bar Code"; "Sample Bar Code"; "Sample Type"; "Group"; "Tissue"; "Sample Volume"; "Measurement Time"
-Ploting data created: FALSE
-```
 
-#### Use filter functions to exclude the metabolite indicators and only keep Group 1 to 6:
-```r
-obj <- filterMetabolites(obj, class_name = "Metabolism Indicators")
-232 metabolites were filtered!
-obj <- filterMetaData(obj, column = Group, keep = c(1:6))
-```
+ _____ ______   _______  _________  ________  ___           ___    ___ ________  _______   ________
+|\   _ \  _   \|\  ___ \|\___   ___\\   __  \|\  \         |\  \  /  /|\_____  \|\  ___ \ |\   __  \
+\ \  \\\__\ \  \ \   __/\|___ \  \_\ \  \|\  \ \  \        \ \  \/  / /\|___/  /\ \   __/|\ \  \|\  \
+ \ \  \\|__| \  \ \  \_|/__  \ \  \ \ \   __  \ \  \        \ \    / /     /  / /\ \  \_|/_\ \   _  _\
+  \ \  \    \ \  \ \  \_|\ \  \ \  \ \ \  \ \  \ \  \____    \/   / /     /  /_/__\ \  \_|\ \ \  \\  \| 
+   \ \__\    \ \__\ \_______\  \ \__\ \ \__\ \__\ \_______\__/   / /     |\________\ \_______\ \__\\ _\ 
+    \|__|     \|__|\|_______|   \|__|  \|__|\|__|\|_______|\____/ /       \|_______|\|_______|\|__|\|__|
+                                                          \|____|/
 
-#### Show statistics:
-```r
-summariseQuantData(obj)
--------------------------------------
-Valid: 21951 (48.39%)
-LOQ: 2832 (6.24%)
-LOD: 20577 (45.36%)
+
+Info: Reading color code "FFFFCCCC" as "#FFCCCC"
+Info: Reading color code "FF00CD66" as "#00CD66"
+Info: Reading color code "FF6A5ACD" as "#6A5ACD"
+Info: Reading color code "FF87CEEB" as "#87CEEB"
+Info: Reading color code "FFFFFFCC" as "#FFFFCC"
+
+Measured concentration values:
+------------------------------
+        0%        25%        50%        75%       100% 
+     0.000      0.017      1.760     21.200 288149.000 
+
+NAs: 5348 (8.38%)
+Note: 'Metabolism Indicators' are frequently NA!
+
+Measured quantification status:
+-------------------------------
+Valid: 24095 (37.77%)
+LOQ: 5799 (9.09%)
+LOD: 21789 (34.16%)
+Invalid: 12105 (18.98%)
 NAs: 0 (0%)
 ```
 
-#### Add meta data:
-```r
-meta_df <- readRDS(mpath)
-obj <- updateMetaData(obj, Replicate, meta_df$Replicate)
-```
+### Downstream analysis:
+For further filtering, statistical analysis and plotting, the data is reformatted and aggregated into a tibble data frame.
 
-#### Reformat for plotting:
-For further filtering and plotting, the data can be reformatted into a data frame.
 ```{r}
-obj <- createPlottingData(obj, Group, Tissue, ungrouped = Replicate)
-gg_df <- plottingData(obj)
-
-head(gg_df)
-# A tibble: 6 × 12
-# Groups:   Group, Tissue, Metabolite [2]
-  Group Tissue     Replicate Metabolite Class         Concentration  Mean    SD    CV CV_thresh Status
-  <fct> <fct>      <fct>     <fct>      <fct>                 <dbl> <dbl> <dbl> <dbl> <fct>     <fct> 
-1 1     Drosophila R1        C0         Acylcarnitin…         203   179.  82.4  0.461 more30    Valid 
-2 1     Drosophila R2        C0         Acylcarnitin…          86.8 179.  82.4  0.461 more30    Valid 
-3 1     Drosophila R3        C0         Acylcarnitin…         246   179.  82.4  0.461 more30    Valid 
-4 1     Drosophila R1        C2         Acylcarnitin…          29.5  26.6  9.72 0.365 more30    Valid 
-5 1     Drosophila R2        C2         Acylcarnitin…          15.8  26.6  9.72 0.365 more30    Valid 
-6 1     Drosophila R3        C2         Acylcarnitin…          34.6  26.6  9.72 0.365 more30    Valid 
-# … with 1 more variable: valid_replicates <lgl>
+> aggregatedData(metalyzer_se)
+# A tibble: 63,788 × 5
+# Groups:   Metabolite [862]
+   ID    Metabolite Class          Concentration Status
+   <fct> <fct>      <fct>                  <dbl> <fct> 
+ 1 9     C0         Acylcarnitines         203   Valid 
+ 2 10    C0         Acylcarnitines          86.8 Valid 
+ 3 11    C0         Acylcarnitines         246   Valid 
+ 4 12    C0         Acylcarnitines         198   Valid 
+ 5 13    C0         Acylcarnitines         369   Valid 
+ 6 14    C0         Acylcarnitines         127   Valid 
+ 7 15    C0         Acylcarnitines          36.1 Valid 
+ 8 16    C0         Acylcarnitines          40.7 Valid 
+ 9 17    C0         Acylcarnitines         189   Valid 
+10 18    C0         Acylcarnitines          16.1 LOD   
+# ℹ 63,778 more rows
+# ℹ Use `print(n = ...)` to see more rows
 ```
-
-#### Plot filter data and plot concentration of glutamic acid:
-```{r}
-glu_gg_df <- filter(gg_df, Metabolite == "Glu")
-
-ggplot(glu_gg_df, aes(Group, Concentration, color = Status)) +
-  geom_point() +
-  scale_color_manual(values = c("Valid" = "#00CD66",
-                                "LOQ" = "#87CEEB",
-                                "LOD" = "#6A5ACD")) + 
-  facet_grid(~ Tissue)
-```
-![](vignettes/example_ggplot.png)
-
 
 ## Detailed instructions
-**For a comprehensive tutorial, please check out the vignette.**
+**For a comprehensive tutorial, please check out the [MetAlyzer User Guide](https://github.com/nilsmechtel/MetAlyzer/blob/main/vignettes/MetAlyzer_User_Guide.html).**
