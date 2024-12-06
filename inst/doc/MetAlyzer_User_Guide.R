@@ -6,11 +6,11 @@ library(ggplot2)
 library(dplyr)
 
 ## ----install_cran, eval=FALSE-------------------------------------------------
-#  install.packages("MetAlyzer")
+# install.packages("MetAlyzer")
 
 ## ----install_github, eval=FALSE-----------------------------------------------
-#  library(devtools)
-#  install_github("nilsmechtel/MetAlyzer")
+# library(devtools)
+# install_github("nilsmechtel/MetAlyzer")
 
 ## ----initialize_extraction----------------------------------------------------
 fpath <- example_extraction_data()

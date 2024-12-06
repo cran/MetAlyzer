@@ -96,4 +96,5 @@ For further filtering, statistical analysis and plotting, the data is reformatte
 ```
 
 ## Detailed instructions
-**For a comprehensive tutorial, please check out the [MetAlyzer User Guide](https://github.com/nilsmechtel/MetAlyzer/blob/main/vignettes/MetAlyzer_User_Guide.html).**
+**For a comprehensive tutorial, please check out the [MetAlyzer Vignette](https://CRAN.R-project.org/package=MetAlyzer
+).**
